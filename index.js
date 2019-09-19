@@ -84,10 +84,15 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter(p => p.id !== id)
+	Person.findByIdAndRemove(req.params.id)
+		.then(result => {
+			res.status(204).end()
+		})
+		.catch(error => {
+			console.log(error)
+			res.status(400).send({ error: 'malformed id' })
+		})
   
-  res.status(204).end()
 })
 
 app.get('/info', (req, res) => {
