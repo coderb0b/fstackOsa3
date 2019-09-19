@@ -70,7 +70,7 @@ app.post('/api/persons', (req, res) => {
 		number: body.number,
 	})
 
-/*	
+/*	Tarkistetaan onko saman nimistä henkilöä, lisätään myöhemmin
 	if (persons.find(p => p.name === person.name)) {
 		return res.status(400).json({
 			error: 'name must be unique'
