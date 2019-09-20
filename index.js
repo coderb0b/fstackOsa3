@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 require('dotenv').config()
 const express = require('express')
 const app = express()
@@ -6,7 +7,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
 
-morgan.token('body', function (req, res) {
+morgan.token('body', function (req) {
   return JSON.stringify(req.body)
 })
 
@@ -42,71 +43,72 @@ app.get('/', (req, res) => {
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
 	  res.json(persons)
-  })  
+  })
 })
 
 app.get('/api/persons/:id', (req, res) => {
   Person.findById(req.params.id)
-	.then(person => {
-		if (person) {
-			res.json(person.toJSON())
-		} else {
-			res.status(404).end()
-		}
-	})
-	.catch(error => {
-		console.log(error)
-		res.status(400).send({ error: 'malformed id' })
-	})
+    .then(person => {
+      if (person) {
+        res.json(person.toJSON())
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      res.status(400).send({ error: 'malformed id' })
+    })
 })
 
 app.post('/api/persons', (req, res, next) => {
-	const body = req.body
-	
-	if (body.name === undefined || body.number === undefined) {
-		return res.status(400).json({
-			error: 'missing content'
-		})
-	}
-	
-	const person = new Person ({
-		name: body.name,
-		number: body.number,
-	})
+  const body = req.body
+
+  if (body.name === undefined || body.number === undefined) {
+    return res.status(400).json({
+      error: 'missing content'
+    })
+  }
+
+  const person = new Person ({
+    name: body.name,
+    number: body.number,
+  })
 
 
-/*	Tarkistetaan onko saman nimistä henkilöä, lisätään myöhemmin
+  /*	Tarkistetaan onko saman nimistä henkilöä, lisätään myöhemmin
 	if (persons.find(p => p.name === person.name)) {
 		return res.status(400).json({
 			error: 'name must be unique'
 		})
 	}
 */
-	person.save().then(savedPerson => {
-		res.json(savedPerson.toJSON())
-	}).catch(error => next(error))
-	
-	
+  person.save().then(savedPerson => {
+    res.json(savedPerson.toJSON())
+  }).catch(error => next(error))
+
+
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
-	Person.findByIdAndRemove(req.params.id)
-		.then(result => {
-			res.status(204).end()
-		})
-		.catch(error => next(error))
-  
+  Person.findByIdAndRemove(req.params.id)
+    // eslint-disable-next-line no-unused-vars
+    .then(result => {
+      res.status(204).end()
+    })
+    .catch(error => next(error))
+
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
-	const body = req.body
+  const body = req.body
 
-	const person = {
-		name: body.name,
-		number: body.number,
-	}
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
 
-	Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
 	  .then(updatedPerson => {
 		  res.json(updatedPerson.toJSON())
 	  })
@@ -114,27 +116,27 @@ app.put('/api/persons/:id', (req, res, next) => {
 })
 
 app.get('/info', (req, res) => {
-	Person.find({}).then(persons => {
-		res.send(`<div>Phonebook has info for ${persons.length} people <br />${Date()}</div>`)
-	})
+  Person.find({}).then(persons => {
+    res.send(`<div>Phonebook has info for ${persons.length} people <br />${Date()}</div>`)
+  })
 })
 
 //virheiden käsittely
 const unknownEndpoint = (req, res) => {
-	console.log("not found error")
-	res.status(404).send({ error: 'unknown endpoint' })
+  console.log('not found error')
+  res.status(404).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEndpoint)
 
 const errorHandler = (error, req, res, next) => {
-	console.log(error.message)
+  console.log(error.message)
 
-	if (error.name === 'CastError' && error.kind == 'ObjectId') {
-		return res.status(400).send({ error: 'malformed id' })
-	} else if (error.name === 'ValidationError') {
-		return res.status(400).json({ error: error.message })
-	}
-	next(error)
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
+    return res.status(400).send({ error: 'malformed id' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
+  }
+  next(error)
 }
 app.use(errorHandler)
 
